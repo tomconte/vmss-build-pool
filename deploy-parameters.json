@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUsername": {
+            "value": "azdo"
+        },
+        "adminPassword": {
+            "value": "<<<password>>>"
+        },
+        "subnetId": {
+            "value": "/subscriptions/xxxx/resourceGroups/resource-group/providers/Microsoft.Network/virtualNetworks/vnet-name/subnets/default"
+        },
+        "managedImageResourceUri": {
+            "value": "/subscriptions/xxxx/resourceGroups/resource-group/providers/Microsoft.Compute/images/build-agent-image"
+        },
+        "agentOrgUrl": {
+            "value": "https://dev.azure.com/organization"
+        },
+        "agentPat": {
+            "value": "<<<pat>>>"
+        },
+        "agentPool": {
+            "value": "VMSSPool"
+        }
+    }
+}

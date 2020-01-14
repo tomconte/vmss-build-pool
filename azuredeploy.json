@@ -1,0 +1,115 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "The name for the administrative user account created on the VM."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the administrative user account."
+      }
+    },
+    "subnetId": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID of the Virtual Network subnet where the nodes will be created."
+      }
+    },
+    "managedImageResourceUri": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID of the custom VM image to use for the nodes."
+      }
+    },
+    "agentOrgUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "The URL of the Azure DevOps organization."
+      }
+    },
+    "agentPat": {
+      "type": "string",
+      "metadata": {
+        "description": "The Personal Access Token (PAT) used to configure the agent."
+      }
+    },
+    "agentPool": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Agent Pool where the agent should register."
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "name": "build-agents",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-04-30-preview",
+      "sku": {
+        "name": "Standard_B1ms",
+        "capacity": 2
+      },
+      "properties": {
+        "upgradePolicy": {
+          "mode": "Manual"
+        },
+        "overprovision": false,
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "imageReference": {
+              "id": "[parameters('managedImageResourceUri')]"
+            }
+          },
+          "osProfile": {
+            "computerNamePrefix": "build-agent",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
+          },
+          "networkProfile": {
+            "networkInterfaceConfigurations": [
+              {
+                "name": "aagent-nic",
+                "properties": {
+                  "primary": true,
+                  "ipConfigurations": [
+                    {
+                      "name": "ip-config",
+                      "properties": {
+                        "subnet": {
+                          "id": "[parameters('subnetId')]"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "extensionProfile": {
+            "extensions": [
+              {
+                "name": "azdoextension",
+                "properties": {
+                  "publisher": "Microsoft.Azure.Extensions",
+                  "type": "CustomScript",
+                  "typeHandlerVersion": "2.0",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "commandToExecute": "[concat('AZP_URL=', parameters('agentOrgUrl'), ' AZP_TOKEN=', parameters('agentPat'), ' AZP_POOL=', parameters('agentPool'), ' su -p ', parameters('adminUsername'), ' -c /scripts/start-agent.sh')]"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
