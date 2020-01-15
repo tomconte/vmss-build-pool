@@ -1,25 +1,33 @@
 # Azure DevOps Agent Pool on VM Scale Set
 
-This repository contains infrastructure deployment scripts that can be used to create a Virtual Machine Scale Set (VMSS) running a set of DevOps build agents. Each node in the scale set is based on a VM image that can be customized to add any necessary pre-requisites. On node start, the DevOps agent is installed and registered in a Build Pool.
+This repository contains infrastructure deployment scripts that can be used to create a Virtual Machine Scale Set (VMSS) running a set of DevOps build agents. Each node in the scale set is based on a VM image that can be customized to add any necessary pre-requisites. Upon node start, the DevOps agent is installed and registered in a Build Pool.
+
+Before running the scripts below, create a resource group named `vmss-build-pool`; for example:
+
+```
+az group create -n vmss-build-pool -l westeurope
+```
 
 ## Creating the VM image
 
 The Packer configuration can be used to build a new Azure VM Image. The image is based on Ubuntu 18.04 LTS and installs some basic build tools (`build-essential`, Docker, ...) The installation script used is `install-build-agent.sh`.
 
-The managed image created is called `build-agent-image`.
+The managed image is called `build-agent-image` and will be created in the `vmss-build-pool` resource group.
 
 ```
 packer build -force agent-image.json
 ```
 
-## Starting a VM Scale Set
+## Starting the VM Scale Set
 
 `azuredeploy.json` is an ARM Template that will spin up a VM Scale Set based on the image created in the previous step.
 
 To deploy it:
 
 ```
-az group deployment create -g vmss-build-pool --template-file azuredeploy.json --parameters @deploy-parameters.json
+az group deployment create -g vmss-build-pool \
+  --template-file azuredeploy.json \
+  --parameters @deploy-parameters.json
 ```
 
 Upon deployment, every node of the scale set will run `start-agent.sh` to configure the Azure DevOps agent. It can also perform some other initialization tasks, like pre-pulling some Docker images or pre-populating other caches.
