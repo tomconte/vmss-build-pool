@@ -14,5 +14,8 @@ jobs:
 
     - uses: actions/checkout@v2
 
+    - name: WTF
+      run: ls -la
+
     - name: Check JSON syntax
       run: jq < ./agent_image.json >/dev/null || exit 1
