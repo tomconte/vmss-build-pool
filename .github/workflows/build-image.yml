@@ -16,3 +16,12 @@ jobs:
 
     - name: Check JSON syntax
       run: jq . < agent-image.json > /dev/null || exit 1
+
+    - name: Install Packer
+      run: |
+        curl -LO https://releases.hashicorp.com/packer/1.5.1/packer_1.5.1_linux_amd64.zip
+        unzip packer_1.5.1_linux_amd64.zip
+
+    - name: Validate Packer
+      run: ./packer validate agent-image.json
+
