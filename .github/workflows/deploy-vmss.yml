@@ -22,4 +22,5 @@ jobs:
         creds: ${{ secrets.AZURE_CREDS }}
 
     - run: |
-        az group list -o table
+        az group deployment create -g vmss-build-pool --template-file azuredeploy.json --parameters '${{ secrets.DEPLOY_PARAMETERS }}'
+        # now do some testing and delete the scale set
