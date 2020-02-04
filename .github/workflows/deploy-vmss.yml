@@ -1,0 +1,25 @@
+name: build-image
+
+on:
+  push:
+    paths: 
+      - 'azuredeploy.json'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Check JSON syntax
+      run: jq . < azuredeploy.json > /dev/null || exit 1
+
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDS }}
+
+    - run: |
+        az group list -o table
