@@ -1,4 +1,4 @@
-name: build-image
+name: deploy-vmss
 
 on:
   push:
