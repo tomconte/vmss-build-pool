@@ -4,6 +4,8 @@ on:
   push:
     paths: 
       - 'agent-image.json'
+      - 'install-build-agent.sh'
+      - 'start-agent.sh'
 
 jobs:
   build:
